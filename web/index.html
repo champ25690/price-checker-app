@@ -22,7 +22,9 @@
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" id="theme_color_meta" content="#FFFFFF">
   <meta name="apple-mobile-web-app-title" content="price_checker">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
@@ -41,6 +43,44 @@
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
+  <script>
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      deferredPrompt = e;
+      
+      // Notify Flutter that the app can be installed
+      if (window.onInstallPromptAvailable) {
+        window.onInstallPromptAvailable();
+      }
+    });
+
+    window.installPWA = async function() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+        } else {
+          console.log('User dismissed the install prompt');
+        }
+        deferredPrompt = null;
+      }
+    };
+
+    window.isInstallPromptReady = function() {
+      return deferredPrompt != null;
+    };
+
+    window.isAppInstalled = function() {
+      if (window.navigator.standalone) return true;
+      if (window.matchMedia('(display-mode: standalone)').matches) return true;
+      return false;
+    };
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

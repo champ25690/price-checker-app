@@ -120,9 +120,9 @@ class ProductListTile extends StatelessWidget {
             left: 0,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              decoration: const BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: product.memberOnly ? Colors.blue.shade600 : Colors.red,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(10),
                   bottomRight: Radius.circular(6),
                 ),

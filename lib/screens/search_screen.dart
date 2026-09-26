@@ -8,6 +8,7 @@ import '../theme.dart';
 import '../main.dart';
 import '../widgets/product_list_tile.dart';
 import '../widgets/promo_badge.dart';
+import '../widgets/install_banner.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -101,7 +102,13 @@ class _SearchScreenState extends State<SearchScreen> {
       if (ProductService.isBarcode(q)) {
         try {
           final product = await ProductService.searchByBarcode(q);
-          if (mounted) context.push('/product', extra: product);
+          if (mounted) {
+            await context.push('/product', extra: product);
+            _controller.clear();
+            setState(() {
+              _results = [];
+            });
+          }
           return;
         } catch (_) {}
       }
@@ -109,7 +116,13 @@ class _SearchScreenState extends State<SearchScreen> {
       if (ProductService.isSku(q)) {
         try {
           final product = await ProductService.searchBySku(q);
-          if (mounted) context.push('/product', extra: product);
+          if (mounted) {
+            await context.push('/product', extra: product);
+            _controller.clear();
+            setState(() {
+              _results = [];
+            });
+          }
           return;
         } catch (_) {}
       }
@@ -172,6 +185,7 @@ class _SearchScreenState extends State<SearchScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            const InstallBanner(),
             _buildHeader(),
             _buildSearchBar(),
             _buildFilterChips(),
@@ -425,9 +439,25 @@ class _SearchScreenState extends State<SearchScreen> {
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(14, 16, 14, 8),
-            child: Text(
-              'ประวัติการค้นหาล่าสุด',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: context.appTextHint),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'ประวัติการค้นหาล่าสุด',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: context.appTextHint),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      recentProducts.clear();
+                    });
+                  },
+                  child: Text(
+                    'ล้างประวัติ',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.red),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(

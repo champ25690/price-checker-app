@@ -25,14 +25,18 @@ String? getDirectImageUrl(String? url) {
   }
 
   // On Web, CanvasKit requires proper CORS headers which Google Drive may not provide.
-  // We use a local CORS proxy running on port 8081.
+  // We use a local CORS proxy for development, and a public one for production.
   if (kIsWeb) {
     try {
       final host = Uri.base.host;
-      final proxyHost = host.isEmpty ? 'localhost' : host;
-      return 'http://$proxyHost:8081/?url=${Uri.encodeComponent(directUrl)}';
+      if (host == 'localhost' || host == '127.0.0.1' || host == '0.0.0.0' || host.isEmpty) {
+        final proxyHost = host.isEmpty ? 'localhost' : host;
+        return 'http://$proxyHost:8081/?url=${Uri.encodeComponent(directUrl)}';
+      }
+      // Production Vercel Serverless Function Proxy
+      return '/api/image-proxy?url=${Uri.encodeComponent(directUrl)}';
     } catch (e) {
-      return 'http://localhost:8081/?url=${Uri.encodeComponent(directUrl)}';
+      return '/api/image-proxy?url=${Uri.encodeComponent(directUrl)}';
     }
   }
 

@@ -187,21 +187,20 @@ class _ScannerOverlay extends StatelessWidget {
     return [
       _corner(l, t, s, th, r, color, true, true),
       _corner(l + w - s, t, s, th, r, color, false, true),
-      _corner(l, t + h - th, s, th, r, color, true, false),
-      _corner(l + w - s, t + h - th, s, th, r, color, false, false),
+      _corner(l, t + h - s, s, th, r, color, true, false),
+      _corner(l + w - s, t + h - s, s, th, r, color, false, false),
     ];
   }
 
   Widget _corner(double l, double t, double s, double th, double r, Color c,
-      bool leftSide, bool top) {
+      bool leftSide, bool topSide) {
     return Positioned(
       left: l,
-      top: top ? t : null,
-      bottom: top ? null : 0,
+      top: t,
       child: SizedBox(
         width: s,
         height: s,
-        child: CustomPaint(painter: _CornerPainter(c, th, r, leftSide, top)),
+        child: CustomPaint(painter: _CornerPainter(c, th, r, leftSide, topSide)),
       ),
     );
   }
