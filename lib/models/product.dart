@@ -83,6 +83,10 @@ class Product {
       pointX2: json['point_x2'] ?? false,
     );
   }
+  
+  num get basePriceForPromo => (promoPrice != null && promoPrice! > 0) ? promoPrice! : (normalPrice > 0 ? normalPrice : price);
+  bool get isBuy1Get1 => promoQty == 2 && promoTotal > 0 && promoTotal == basePriceForPromo;
+  bool get isBuy2Get1 => promoQty == 3 && promoTotal > 0 && promoTotal == (basePriceForPromo * 2);
 }
 
 class Promotion {

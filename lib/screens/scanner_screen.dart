@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -93,15 +94,17 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _RoundBtn(
-                      icon: _torchOn ? Icons.flash_off : Icons.flash_on,
-                      label: _torchOn ? 'ปิดไฟ' : 'ไฟฉาย',
-                      onTap: () {
-                        _controller.toggleTorch();
-                        setState(() => _torchOn = !_torchOn);
-                      },
-                    ),
-                    const SizedBox(width: 32),
+                    if (!kIsWeb) ...[
+                      _RoundBtn(
+                        icon: _torchOn ? Icons.flash_off : Icons.flash_on,
+                        label: _torchOn ? 'ปิดไฟ' : 'ไฟฉาย',
+                        onTap: () {
+                          _controller.toggleTorch();
+                          setState(() => _torchOn = !_torchOn);
+                        },
+                      ),
+                      const SizedBox(width: 32),
+                    ],
                     _RoundBtn(
                       icon: Icons.photo_library_outlined,
                       label: 'แกลเลอรี',

@@ -86,11 +86,11 @@ class ProductListTile extends StatelessWidget {
 
   Widget _thumb(BuildContext context) {
     String? badgeText;
-    if (product.promoQty == 2 && product.promoTotal == product.price) {
+    if (product.isBuy1Get1) {
       badgeText = '1 แถม 1';
-    } else if (product.promoQty == 3 && product.promoTotal == (product.price * 2)) {
+    } else if (product.isBuy2Get1) {
       badgeText = '2 แถม 1';
-    } else if (product.promoQty == 2 && product.promoTotal > product.price) {
+    } else if (product.promoQty == 2 && product.promoTotal > product.basePriceForPromo) {
       badgeText = 'ซื้อคู่';
     } else if (product.promoPrice != null && product.promoPrice! > 0 && product.price > 0) {
       badgeText = '-${(((product.price - product.promoPrice!) / product.price) * 100).round()}%';

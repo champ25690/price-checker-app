@@ -377,7 +377,7 @@ class ProductDetailScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   
                   // Promo Price Display
-                  if (product.promoQty == 2 && product.promoTotal == product.normalPrice) ...[
+                  if (product.isBuy1Get1) ...[
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -397,7 +397,7 @@ class ProductDetailScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          product.promoQty == 3 && product.promoTotal == (product.normalPrice * 2) ? '2 แถม 1' : 'ซื้อคู่ถูกกว่า',
+                          product.isBuy2Get1 ? '2 แถม 1' : 'ซื้อคู่ถูกกว่า',
                           style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         const Spacer(),
