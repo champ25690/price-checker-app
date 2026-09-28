@@ -16,15 +16,6 @@ class ScannerScreen extends StatefulWidget {
 class _ScannerScreenState extends State<ScannerScreen> {
   final MobileScannerController _controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
-    formats: const [
-      BarcodeFormat.ean13,
-      BarcodeFormat.ean8,
-      BarcodeFormat.upcA,
-      BarcodeFormat.upcE,
-      BarcodeFormat.code128,
-      BarcodeFormat.code39,
-      BarcodeFormat.qrCode,
-    ],
   );
 
   bool _torchOn = false;
@@ -32,7 +23,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   void _onDetect(BarcodeCapture capture) {
     if (_detected) return;
-    final barcode = capture.barcodes.firstOrNull?.rawValue;
+    final barcode = capture.barcodes.firstOrNull?.rawValue ?? capture.barcodes.firstOrNull?.displayValue;
     if (barcode == null) return;
     _detected = true;
     HapticFeedback.vibrate();
