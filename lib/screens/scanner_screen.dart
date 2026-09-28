@@ -16,6 +16,15 @@ class ScannerScreen extends StatefulWidget {
 class _ScannerScreenState extends State<ScannerScreen> {
   final MobileScannerController _controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
+    formats: const [
+      BarcodeFormat.ean13,
+      BarcodeFormat.ean8,
+      BarcodeFormat.upcA,
+      BarcodeFormat.upcE,
+      BarcodeFormat.code128,
+      BarcodeFormat.code39,
+      BarcodeFormat.qrCode,
+    ],
   );
 
   bool _torchOn = false;
