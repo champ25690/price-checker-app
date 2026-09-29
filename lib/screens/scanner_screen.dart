@@ -48,6 +48,30 @@ class _ScannerScreenState extends State<ScannerScreen> {
           MobileScanner(
             controller: _controller,
             onDetect: _onDetect,
+            errorBuilder: (context, error, child) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    'เกิดข้อผิดพลาดในการเปิดกล้อง:\n${error.errorCode}',
+                    style: const TextStyle(color: Colors.red, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              );
+            },
+            placeholderBuilder: (context, child) {
+              return const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(color: Colors.white),
+                    SizedBox(height: 16),
+                    Text('กำลังเปิดกล้อง...', style: TextStyle(color: Colors.white)),
+                  ],
+                ),
+              );
+            },
           ),
 
           // Overlay มืดรอบๆ viewfinder

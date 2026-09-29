@@ -181,15 +181,21 @@ class _SearchScreenState extends State<SearchScreen> {
 @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.appBg,
+      backgroundColor: context.appCard,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             const InstallBanner(),
             _buildHeader(),
             _buildSearchBar(),
             _buildFilterChips(),
-            Expanded(child: _buildBody()),
+            Expanded(
+              child: Container(
+                color: context.appBg,
+                child: _buildBody(),
+              ),
+            ),
           ],
         ),
       ),
@@ -199,21 +205,21 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildHeader() {
     return Container(
       color: context.appCard,
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+      padding: const EdgeInsets.fromLTRB(0, 4, 0, 10),
       child: Row(
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: kPrimary,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.price_check, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 48), // Balance for settings button to center title
           Expanded(
-            child: Text('ตรวจสอบราคาสินค้า', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: context.appTextPrimary)),
+            child: Text(
+              'ตรวจสอบราคาสินค้า',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: context.appTextPrimary,
+                letterSpacing: -0.5,
+              ),
+            ),
           ),
           IconButton(
             icon: Icon(Icons.settings_outlined, color: context.appTextPrimary),
@@ -305,11 +311,14 @@ class _SearchScreenState extends State<SearchScreen> {
                 style: TextStyle(fontSize: 15, color: context.appTextPrimary),
                 textAlignVertical: TextAlignVertical.center,
                 decoration: InputDecoration(
+                  isDense: true,
                   hintText: 'ชื่อสินค้า, บาร์โค้ด, SKU...',
                   hintStyle: TextStyle(fontSize: 15, color: context.appTextHint),
                   prefixIcon: Icon(Icons.search, color: context.appTextHint, size: 20),
+                  prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                  suffixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  contentPadding: EdgeInsets.zero,
                   suffixIcon: _ClearButton(
                     controller: _controller,
                     onClear: () {
@@ -583,7 +592,7 @@ class _FilterChip extends StatelessWidget {
           color: active ? kPrimary : (isDark ? const Color(0xFF333333) : Colors.grey.shade100),
           borderRadius: BorderRadius.circular(25),
           boxShadow: active
-              ? [BoxShadow(color: kPrimary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))]
+              ? [BoxShadow(color: kPrimary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))]
               : [],
         ),
         child: Text(label,

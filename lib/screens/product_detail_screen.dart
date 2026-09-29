@@ -14,22 +14,27 @@ class ProductDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.appBg,
+      backgroundColor: context.appCard,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             _buildAppBar(context),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildHero(context),
-                    const SizedBox(height: 10),
-                    _buildPriceCard(context),
-                    const SizedBox(height: 8),
-                    _buildInfoCard(context),
-                    const SizedBox(height: 20),
-                  ],
+              child: Container(
+                color: context.appBg,
+                width: double.infinity,
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 20),
+                  child: Column(
+                    children: [
+                      _buildHero(context),
+                      const SizedBox(height: 10),
+                      _buildPriceCard(context),
+                      const SizedBox(height: 8),
+                      _buildInfoCard(context),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -42,7 +47,7 @@ class ProductDetailScreen extends StatelessWidget {
   Widget _buildAppBar(BuildContext context) {
     return Container(
       color: context.appCard,
-      padding: const EdgeInsets.fromLTRB(12, 8, 16, 10),
+      padding: const EdgeInsets.fromLTRB(12, 0, 16, 10),
       child: Row(
         children: [
           GestureDetector(
