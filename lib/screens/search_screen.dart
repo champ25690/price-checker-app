@@ -13,12 +13,19 @@ import '../widgets/install_banner.dart';
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
+  static DateTime? lastInternalCopyTime;
+  static void markInternalCopy() {
+    lastInternalCopyTime = DateTime.now();
+  }
+
   @override
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen> {
   static List<Product> recentProducts = [];
+  static const MethodChannel _scannerChannel =
+      MethodChannel('price_checker_scanner');
   final _controller = TextEditingController();
   final _focus = FocusNode();
   Timer? _debounce;
@@ -30,11 +37,55 @@ class _SearchScreenState extends State<SearchScreen> {
   String _sort = 'none'; // none | price_asc | price_desc | discount_desc // all | promo | new
   String _scannedBuffer = '';
   DateTime? _lastKeyPress;
+  int _lastScanTriggerTime = 0;
+  String _lastScanTriggerCode = '';
 
   @override
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_handleKeyEvent);
+    _setupScannerChannel();
+  }
+
+  void _setupScannerChannel() {
+    _scannerChannel.setMethodCallHandler((call) async {
+      if (call.method == 'onBarcodeScanned') {
+        if (!mounted || _loading) return false;
+        if (SearchScreen.lastInternalCopyTime != null &&
+            DateTime.now()
+                    .difference(SearchScreen.lastInternalCopyTime!)
+                    .inMilliseconds <
+                600) {
+          return false;
+        }
+        final raw = call.arguments?.toString() ?? '';
+        final bc = raw.replaceAll('\r', '').replaceAll('\n', '').trim();
+        if (bc.isEmpty) return false;
+
+        final now = DateTime.now().millisecondsSinceEpoch;
+        if (bc == _lastScanTriggerCode && (now - _lastScanTriggerTime) < 400) {
+          return true;
+        }
+        _lastScanTriggerCode = bc;
+        _lastScanTriggerTime = now;
+
+        _debounce?.cancel();
+        _focus.unfocus();
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
+
+        final router = GoRouter.of(context);
+        while (router.canPop()) {
+          router.pop();
+        }
+
+        setState(() {
+          _controller.text = bc;
+        });
+        _search(bc);
+        return true;
+      }
+      return false;
+    });
   }
 
   bool _handleKeyEvent(KeyEvent event) {
@@ -47,14 +98,24 @@ class _SearchScreenState extends State<SearchScreen> {
       }
       _lastKeyPress = now;
 
-      if (event.logicalKey == LogicalKeyboardKey.enter) {
+      if (event.logicalKey == LogicalKeyboardKey.enter ||
+          event.logicalKey == LogicalKeyboardKey.numpadEnter) {
         if (_scannedBuffer.isNotEmpty) {
-          final barcode = _scannedBuffer;
+          final barcode = _scannedBuffer.trim();
           _scannedBuffer = '';
-          setState(() {
-            _controller.text = barcode;
-          });
-          _search(barcode);
+          if (barcode.isNotEmpty) {
+            final nowMs = now.millisecondsSinceEpoch;
+            if (barcode == _lastScanTriggerCode &&
+                (nowMs - _lastScanTriggerTime) < 400) {
+              return true;
+            }
+            _lastScanTriggerCode = barcode;
+            _lastScanTriggerTime = nowMs;
+            setState(() {
+              _controller.text = barcode;
+            });
+            _search(barcode);
+          }
           return true;
         }
       } else if (event.character != null && event.character!.trim().isNotEmpty) {
@@ -68,6 +129,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
+    _scannerChannel.setMethodCallHandler(null);
     _controller.dispose();
     _focus.dispose();
     _debounce?.cancel();
@@ -76,6 +138,15 @@ class _SearchScreenState extends State<SearchScreen> {
 
   
   void _onSearchChanged(String query) {
+    if (query.contains('\n')) {
+      final bc = query.replaceAll('\r', '').replaceAll('\n', '').trim();
+      _controller.text = bc;
+      if (_debounce?.isActive ?? false) _debounce!.cancel();
+      if (bc.isNotEmpty) {
+        _search(bc);
+      }
+      return;
+    }
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 250), () {
       _search(query);
@@ -103,11 +174,14 @@ class _SearchScreenState extends State<SearchScreen> {
         try {
           final product = await ProductService.searchByBarcode(q);
           if (mounted) {
+            setState(() => _loading = false);
             await context.push('/product', extra: product);
-            _controller.clear();
-            setState(() {
-              _results = [];
-            });
+            if (mounted) {
+              _controller.clear();
+              setState(() {
+                _results = [];
+              });
+            }
           }
           return;
         } catch (_) {}
@@ -117,11 +191,14 @@ class _SearchScreenState extends State<SearchScreen> {
         try {
           final product = await ProductService.searchBySku(q);
           if (mounted) {
+            setState(() => _loading = false);
             await context.push('/product', extra: product);
-            _controller.clear();
-            setState(() {
-              _results = [];
-            });
+            if (mounted) {
+              _controller.clear();
+              setState(() {
+                _results = [];
+              });
+            }
           }
           return;
         } catch (_) {}

@@ -6,6 +6,7 @@ import '../models/product.dart';
 import '../utils/image_utils.dart';
 import '../theme.dart';
 import '../widgets/promo_badge.dart';
+import 'search_screen.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final Product product;
@@ -90,6 +91,7 @@ class ProductDetailScreen extends StatelessWidget {
             children: [
               GestureDetector(
                 onLongPress: () {
+                  SearchScreen.markInternalCopy();
                   Clipboard.setData(ClipboardData(text: product.sku));
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('คัดลอกรหัส SKU แล้ว'), duration: Duration(seconds: 2)),
@@ -117,6 +119,7 @@ class ProductDetailScreen extends StatelessWidget {
                 const SizedBox(width: 8),
                 GestureDetector(
                   onLongPress: () {
+                    SearchScreen.markInternalCopy();
                     Clipboard.setData(ClipboardData(text: product.barcode));
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('คัดลอกรหัสบาร์โค้ดแล้ว'), duration: Duration(seconds: 2)),
