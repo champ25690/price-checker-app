@@ -17,11 +17,14 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     private val channelName = "price_checker_scanner"
+    private val authChannelName = "device_auth_channel"
     private var methodChannel: MethodChannel? = null
+    private var authChannel: MethodChannel? = null
     private var clipboardManager: ClipboardManager? = null
     private val mainHandler = Handler(Looper.getMainLooper())
 
     private var isActivityVisible = false
+    private var isScannerEnabled = true
     private var isClearingClipboard = false
     private var isReceiverRegistered = false
 
@@ -32,13 +35,13 @@ class MainActivity : FlutterActivity() {
     private var lastKeyTime = 0L
 
     private val clipListener = ClipboardManager.OnPrimaryClipChangedListener {
-        if (!isActivityVisible || isClearingClipboard) return@OnPrimaryClipChangedListener
+        if (!isActivityVisible || !isScannerEnabled || isClearingClipboard) return@OnPrimaryClipChangedListener
         readClipboardAndEmit()
     }
 
     private val scanBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (!isActivityVisible || intent == null) return
+            if (!isActivityVisible || !isScannerEnabled || intent == null) return
             val possibleKeys = listOf(
                 "barcode_string",
                 "barcode",
@@ -71,6 +74,45 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         methodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channelName)
+        authChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, authChannelName)
+        authChannel?.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "getDeviceInfo" -> {
+                    val androidId = try {
+                        android.provider.Settings.Secure.getString(
+                            contentResolver,
+                            android.provider.Settings.Secure.ANDROID_ID
+                        ) ?: ""
+                    } catch (_: Exception) {
+                        ""
+                    }
+                    val manufacturer = (Build.MANUFACTURER ?: "").trim()
+                    val model = (Build.MODEL ?: "").trim()
+                    val rawModel = if (model.startsWith(manufacturer, ignoreCase = true)) {
+                        model
+                    } else {
+                        "$manufacturer $model".trim()
+                    }
+                    val fullModel = rawModel.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase() else it.toString()
+                    }
+                    val osVersion = "Android ${Build.VERSION.RELEASE ?: ""} (SDK ${Build.VERSION.SDK_INT})"
+                    result.success(
+                        mapOf(
+                            "androidId" to androidId,
+                            "deviceModel" to fullModel,
+                            "osVersion" to osVersion
+                        )
+                    )
+                }
+                "setScannerEnabled" -> {
+                    val enabled = call.arguments as? Boolean ?: true
+                    isScannerEnabled = enabled
+                    result.success(true)
+                }
+                else -> result.notImplemented()
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -131,6 +173,9 @@ class MainActivity : FlutterActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (!isScannerEnabled) {
+            return super.dispatchKeyEvent(event)
+        }
         if (event.action == KeyEvent.ACTION_DOWN) {
             if (event.keyCode == KeyEvent.KEYCODE_PASTE ||
                 (event.keyCode == KeyEvent.KEYCODE_V && event.isCtrlPressed)

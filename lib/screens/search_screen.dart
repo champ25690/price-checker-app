@@ -343,20 +343,72 @@ class _SearchScreenState extends State<SearchScreen> {
                   }
                 ),
                 const Divider(),
-                const SizedBox(height: 16),
-                Center(
-                  child: Column(
-                    children: [
-                      Icon(Icons.code, size: 28, color: context.appTextHint),
-                      const SizedBox(height: 8),
-                      Text('พัฒนาโดย champ สาขา 9544', style: TextStyle(color: context.appTextHint, fontSize: 13)),
-                      const SizedBox(height: 2),
-                      Text('หากมีปัญหาหรือข้อเสนอติดต่อ', style: TextStyle(color: context.appTextHint, fontSize: 13)),
-                      const SizedBox(height: 2),
-                      Text('Line ID : champ25690', style: TextStyle(color: kPrimary, fontWeight: FontWeight.bold, fontSize: 13)),
-                      const SizedBox(height: 16),
-                      Text('เวอร์ชัน 1.0.0', style: TextStyle(color: context.appTextHint, fontSize: 11)),
-                    ],
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                    decoration: BoxDecoration(
+                      color: context.appBg,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: context.appBorder),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: kPrimary.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.code_rounded, size: 22, color: kPrimary),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'พัฒนาโดย champ สาขา 9544',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: context.appTextPrimary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13.5,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'หากมีปัญหาหรือข้อเสนอติดต่อ',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: context.appTextHint, fontSize: 12.5),
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: kPrimary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'Line ID : champ25690',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: kPrimary,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'เวอร์ชัน 1.0.5',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: context.appTextHint, fontSize: 11),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
